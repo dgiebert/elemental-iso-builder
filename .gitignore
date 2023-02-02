@@ -1,0 +1,4 @@
+packages/linux/amd64/*.rpm
+packages/linux/arm64/*.rpm
+packages/linux/noarch/*.rpm
+output
