@@ -20,6 +20,8 @@ buildah build \
     --build-arg IMAGE_REPO=${IMAGE_REPO} \
     --build-arg IMAGE_TAG=${IMAGE_TAG} \
     --tag ${IMAGE_REPO}:${IMAGE_TAG}
+    # --target os
+
 
 # Execute custom scripts
 find scripts -type f -exec {} \;
