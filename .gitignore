@@ -1,6 +1,6 @@
 packages/linux/amd64/*.rpm
 packages/linux/arm64/*.rpm
 packages/linux/noarch/*.rpm
-k3os/etc/NetworkManager/system-connections/*.connection
+overlay/etc/NetworkManager/system-connections/*.connection
 output
 livecd-cloud-config.yaml

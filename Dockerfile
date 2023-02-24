@@ -7,20 +7,22 @@
 # Step 1: Build the Operating System
 FROM registry.opensuse.org/isv/rancher/elemental/dev/teal53/15.4/rancher/elemental-teal/5.3:latest as os
 
-# Used to parse the package source directory (MULTIARCH) -> e.g. linux/arm64
-ARG TARGETPLATFORM
-    
 # Do not copy in but bind mount
-RUN --mount=type=bind,source=./k3os/,target=/tmp/k3os \
-    cp -r /tmp/k3os/* / && \
-    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.10+k3s1 INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_BIN_DIR=/sbin sh - &&\
+RUN --mount=type=bind,source=./overlay/,target=/tmp/overlay \
+    cp -r /tmp/overlay/* / && \
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.10+k3s1 INSTALL_K3S_SKIP_ENABLE=true INSTALL_K3S_BIN_DIR=/sbin sh - && \
     mkdir -p -m 700 /var/lib/rancher/k3s/server/logs && \
     mkdir -p /var/lib/rancher/k3s/server/manifests /etc/rancher/k3s/ && \
     useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
 
-# Uncomment to Install packages within packages
-RUN --mount=type=bind,source=./packages/,target=/tmp/packages \
-    rpm -ivh /tmp/packages/linux/noarch/*.rpm /tmp/packages/${TARGETPLATFORM}/*.rpm &&\
+# Used to parse the package source directory (MULTIARCH) -> e.g. linux/arm64
+ARG TARGETPLATFORM
+ARG TARGETOS
+
+# Install RPMs within packages
+RUN --mount=type=bind,source=./packages/${TARGETPLATFORM},target=/tmp/packages \
+    --mount=type=bind,source=./packages/${TARGETOS}/noarch,target=/tmp/packages/noarch \
+    find . -regex '/tmp/packages/\S**.rpm' | xargs -r rpm -ivh && \
     zypper clean --all
 
 # IMPORTANT: /etc/os-release is used for versioning/upgrade. The
